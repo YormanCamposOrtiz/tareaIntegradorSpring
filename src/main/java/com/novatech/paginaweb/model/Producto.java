@@ -21,6 +21,10 @@ public class Producto {
     @Column(nullable = false)
     private Integer stock;
 
+    @ManyToOne
+    @JoinColumn(name = "categoria_id") // Esto crea la columna en Neon
+    private Categoria categoria;
+
     public Producto() {}
 
     // Getters y Setters
@@ -38,4 +42,7 @@ public class Producto {
 
     public Integer getStock() { return stock; }
     public void setStock(Integer stock) { this.stock = stock; }
+
+    public Categoria getCategoria() { return categoria; }
+    public void setCategoria(Categoria categoria) { this.categoria = categoria; }
 }
