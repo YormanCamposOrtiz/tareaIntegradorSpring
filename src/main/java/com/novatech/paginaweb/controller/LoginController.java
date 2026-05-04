@@ -22,6 +22,8 @@ public class LoginController {
     private static final int MAX_INTENTOS = 3;
     private static final int TIEMPO_BLOQUEO_MINUTOS = 15;
 
+
+
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> loginData) {
         // CORRECCIÓN: Usar las llaves en español que vienen desde React
@@ -54,6 +56,7 @@ public class LoginController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("correo", usuario.getCorreo()); // También en español aquí
+            response.put("nombre", usuario.getNombre());
             response.put("rol", usuario.getRol());
             response.put("success", true);
             return ResponseEntity.ok(response);
@@ -73,5 +76,17 @@ public class LoginController {
         }
         
         usuarioRepository.save(usuario);
+    }
+    @GetMapping("/buscar")
+    public ResponseEntity<?> buscarUsuario(@RequestParam String correo) {
+        return usuarioRepository.findByCorreo(correo)
+                .map(usuario -> {
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("nombre", usuario.getNombre());
+                    data.put("correo", usuario.getCorreo());
+                    data.put("rol", usuario.getRol());
+                    return ResponseEntity.ok(data);
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }
