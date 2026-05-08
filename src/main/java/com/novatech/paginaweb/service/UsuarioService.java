@@ -9,6 +9,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -19,6 +22,7 @@ public class UsuarioService implements UserDetailsService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public UserDetails loadUserByUsername(String correo) throws UsernameNotFoundException {
@@ -35,8 +39,27 @@ public class UsuarioService implements UserDetailsService {
         // 3. Creación del objeto de seguridad para Spring Security
         return User.builder()
                 .username(usuario.getCorreo())
-                .password("{noop}" + usuario.getContrasena()) // {noop} indica texto plano
+                .password(usuario.getContrasena()) // {noop} indica texto plano
                 .roles(usuario.getRol()) 
                 .build();
+    }
+
+    public Usuario registrarNuevoUsuario(Usuario usuario) {
+        // 1. Validaciones con Guava
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(usuario.getNombre()), "El nombre es obligatorio");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(usuario.getCorreo()), "El correo es obligatorio");
+        Preconditions.checkArgument(usuario.getContrasena().length() >= 8, "La contraseña debe tener al menos 8 caracteres");
+
+        // 2. Verificar si el correo ya existe
+        if (usuarioRepository.findByCorreo(usuario.getCorreo()).isPresent()) {
+            throw new RuntimeException("El correo ya está registrado");
+        }
+
+        // 3. Encriptar contraseña y asignar Rol
+        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+        usuario.setRol("Usuario"); // Forzamos el rol que pediste
+        usuario.setIntentosFallidos(0);
+
+        return usuarioRepository.save(usuario);
     }
 }
