@@ -12,7 +12,7 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:5173")
 
-public class RegisterController {
+public class RegistroController {
     @Autowired
     private UsuarioService usuarioService;
 
