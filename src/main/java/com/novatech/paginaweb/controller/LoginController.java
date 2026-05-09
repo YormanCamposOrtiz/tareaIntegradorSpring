@@ -4,6 +4,7 @@ import com.novatech.paginaweb.model.Usuario;
 import com.novatech.paginaweb.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -44,9 +45,9 @@ public class LoginController {
         if (usuario.getBloqueadoHasta() != null && usuario.getBloqueadoHasta().isAfter(LocalDateTime.now())) {
             return ResponseEntity.status(403).body(Map.of("message", "Cuenta bloqueada temporalmente. Intente más tarde."));
         }
-
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         // 2. Validar contraseña
-        if (usuario.getContrasena().equals(contrasena)) {
+        if (encoder.matches(contrasena, usuario.getContrasena())) {
             // LOGIN EXITOSO
             usuario.setIntentosFallidos(0);
             usuario.setBloqueadoHasta(null);
