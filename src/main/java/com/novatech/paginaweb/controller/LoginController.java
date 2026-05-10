@@ -20,8 +20,8 @@ public class LoginController {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    private static final int MAX_INTENTOS = 3;
-    private static final int TIEMPO_BLOQUEO_MINUTOS = 15;
+    private static final int MAX_INTENTOS = 5;
+    private static final int TIEMPO_BLOQUEO_MINUTOS = 5;
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> loginData) {
