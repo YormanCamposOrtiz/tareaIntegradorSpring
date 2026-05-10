@@ -16,7 +16,10 @@ public class Producto {
     private String descripcion;
 
     @Column(nullable = false)
-    private Double precio;
+    private Double precio_compra;
+
+    @Column(nullable = false)
+    private Double precio_venta;
 
     @Column(nullable = false)
     private Integer stock;
@@ -37,8 +40,11 @@ public class Producto {
     public String getDescripcion() { return descripcion; }
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
 
-    public Double getPrecio() { return precio; }
-    public void setPrecio(Double precio) { this.precio = precio; }
+    public Double getPrecio_compra() { return precio_compra; }
+    public void setPrecio_compra(Double precio_compra) { this.precio_compra = precio_compra; }
+
+    public Double getPrecio_venta() { return precio_venta; }
+    public void setPrecio_venta(Double precio_venta) { this.precio_venta = precio_venta; }
 
     public Integer getStock() { return stock; }
     public void setStock(Integer stock) { this.stock = stock; }
