@@ -18,7 +18,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.SimpleMailMessage;
 
 import java.time.LocalDateTime;
-import java.security.SecureRandom; // Importante para la aleatoriedad
+import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -32,7 +32,6 @@ public class UsuarioService implements UserDetailsService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    // Generador seguro de números y letras
     private static final String CARACTERES = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -58,22 +57,32 @@ public class UsuarioService implements UserDetailsService {
     }
 
     public Usuario registrarNuevoUsuario(Usuario usuario) {
+        // 1. Validaciones de integridad
         Preconditions.checkArgument(!Strings.isNullOrEmpty(usuario.getNombre()), "El nombre es obligatorio");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(usuario.getCorreo()), "El correo es obligatorio");
-        Preconditions.checkArgument(usuario.getContrasena().length() >= 8, "La contrasena debe tener al menos 8 caracteres");
+        Preconditions.checkArgument(usuario.getContrasena() != null && usuario.getContrasena().length() >= 8,
+                "La contrasena debe tener al menos 8 caracteres");
 
+        // 2. Verificar si ya existe
         if (usuarioRepository.findByCorreo(usuario.getCorreo()).isPresent()) {
             throw new RuntimeException("El correo ya esta registrado");
         }
 
+        // 3. LÓGICA DE ROL DINÁMICO (El cambio clave)
+        // Si el frontend envía un rol (ej. "ADMINISTRADOR"), lo usamos.
+        // Si no envía nada, por defecto es "Usuario".
+        if (Strings.isNullOrEmpty(usuario.getRol())) {
+            usuario.setRol("Usuario");
+        }
+
+        // 4. Seguridad y persistencia
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
-        usuario.setRol("Usuario");
         usuario.setIntentosFallidos(0);
 
         return usuarioRepository.save(usuario);
     }
 
-    // --- LÓGICA DE TOKEN CORTO ---
+    // --- LÓGICA DE RECUPERACIÓN (Sin cambios, está correcta) ---
 
     private String generarCodigoCorto(int longitud) {
         StringBuilder sb = new StringBuilder(longitud);
@@ -87,7 +96,6 @@ public class UsuarioService implements UserDetailsService {
         usuarioRepository.findByCorreo(correo)
                 .orElseThrow(() -> new RuntimeException("No existe una cuenta asociada a este correo."));
 
-        // CAMBIO: Ahora genera un código de 8 caracteres
         String token = generarCodigoCorto(8);
         recoveryTokens.put(token, correo);
 
