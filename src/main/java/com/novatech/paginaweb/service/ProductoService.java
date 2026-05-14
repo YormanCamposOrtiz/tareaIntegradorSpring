@@ -1,17 +1,24 @@
 package com.novatech.paginaweb.service;
 
-import com.novatech.paginaweb.model.Producto;
-import com.novatech.paginaweb.repository.ProductoRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.novatech.paginaweb.model.Producto;
+import com.novatech.paginaweb.repository.ProductoRepository;
 
 @Service
 public class ProductoService {
 
     @Autowired
     private ProductoRepository productoRepository;
+
+    public List<Producto> listarVisibles() {
+        return productoRepository.findAll().stream()
+                .filter(Producto::isVisibilidad)
+                .toList();
+    }
 
     public List<Producto> listarTodos() {
         return productoRepository.findAll();
@@ -26,7 +33,11 @@ public class ProductoService {
     }
 
     public void eliminar(Long id) {
-        productoRepository.deleteById(id);
+        Producto producto = buscarPorId(id);
+        if (producto != null) {
+            producto.setVisibilidad(!producto.isVisibilidad());
+            productoRepository.save(producto);
+        }
     }
 
     // Método crucial para el flujo de ventas

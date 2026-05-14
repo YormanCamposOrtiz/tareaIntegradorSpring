@@ -2,6 +2,8 @@ package com.novatech.paginaweb.controller;
 
 import com.novatech.paginaweb.model.Producto;
 import com.novatech.paginaweb.repository.ProductoRepository;
+import com.novatech.paginaweb.service.ProductoService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,41 +17,44 @@ import java.util.List;
 public class ProductoController {
 
     @Autowired
-    private ProductoRepository productoRepository;
+    private ProductoService productoService;
 
     // ENDPOINT PARA VER TODOS LOS PRODUCTOS (ALMACÉN)
     @GetMapping
     public List<Producto> listarProductos() {
         // Esto devuelve la lista completa incluyendo el objeto Categoria
-        return productoRepository.findAll();
+        return productoService.listarVisibles();
     }
 
     // Opcional: Obtener un solo producto por ID
     @GetMapping("/{id}")
     public ResponseEntity<Producto> obtenerProducto(@PathVariable Long id) {
-        return productoRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    Producto producto = productoService.buscarPorId(id);
+    
+    if (producto != null) {
+        return ResponseEntity.ok(producto);
+    } else {
+        return ResponseEntity.notFound().build();
     }
+}
 
     // ENDPOINT PARA GUARDAR O ACTUALIZAR PRODUCTO
     @PostMapping
-    public ResponseEntity<Producto> guardarProducto(@RequestBody Producto producto) {
+    public ResponseEntity<Producto> guardar(@RequestBody Producto producto) {
         try {
-            // Spring Boot guardará el producto y manejará la relación con Categoria
-            Producto nuevoProducto = productoRepository.save(producto);
-            return new ResponseEntity<>(nuevoProducto, HttpStatus.CREATED);
+            return new ResponseEntity<>(productoService.guardar(producto), HttpStatus.CREATED);
         } catch (Exception e) {
-            return new ResponseEntity<Producto>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // ENDPOINT PARA ELIMINAR (Para que funcione el botón de Trash)
-    @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> eliminarProducto(@PathVariable Long id) {
+    // En lugar de borrar, llamamos al método que cambia la visibilidad
+    @PatchMapping("/{id}/visibilidad")
+    public ResponseEntity<Void> cambiarVisibilidad(@PathVariable Long id) {
         try {
-            productoRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            productoService.eliminar(id);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
