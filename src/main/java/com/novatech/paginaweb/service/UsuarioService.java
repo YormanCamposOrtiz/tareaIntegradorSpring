@@ -36,7 +36,7 @@ public class UsuarioService implements UserDetailsService {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private final Cache<String, String> recoveryTokens = CacheBuilder.newBuilder()
-            .expireAfterWrite(15, TimeUnit.MINUTES)
+            .expireAfterWrite(5, TimeUnit.MINUTES)
             .build();
 
     @Override
@@ -101,9 +101,10 @@ public class UsuarioService implements UserDetailsService {
 
         SimpleMailMessage mensaje = new SimpleMailMessage();
         mensaje.setTo(correo);
-        mensaje.setSubject("Recuperar Contrasena - MediExpress");
-        mensaje.setText("Tu codigo de recuperacion es: " + token +
-                "\nO entra aqui: http://localhost:5173/restablecer?token=" + token);
+        mensaje.setSubject("Código de Recuperación - MediExpress");
+        // Eliminamos el enlace para que solo use el código en la web
+        mensaje.setText("Tu código de recuperación es: " + token +
+                "\n\nEste código vencerá en 5 minutos. Ingrésalo en la plataforma para cambiar tu contraseña.");
 
         mailSender.send(mensaje);
 
