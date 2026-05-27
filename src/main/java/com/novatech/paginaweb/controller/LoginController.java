@@ -1,7 +1,8 @@
 package com.novatech.paginaweb.controller;
 
+import com.novatech.paginaweb.dao.UsuarioRepository;
 import com.novatech.paginaweb.model.Usuario;
-import com.novatech.paginaweb.repository.UsuarioRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -58,6 +59,7 @@ public class LoginController {
             response.put("nombre", usuario.getNombre());
             response.put("rol", usuario.getRol());
             response.put("success", true);
+            response.put("id", usuario.getId());
             return ResponseEntity.ok(response);
         } else {
             // FALLO DE LOGIN
@@ -81,6 +83,7 @@ public class LoginController {
         return usuarioRepository.findByCorreo(correo)
                 .map(usuario -> {
                     Map<String, Object> data = new HashMap<>();
+                    data.put("id", usuario.getId());
                     data.put("nombre", usuario.getNombre());
                     data.put("correo", usuario.getCorreo());
                     data.put("rol", usuario.getRol());

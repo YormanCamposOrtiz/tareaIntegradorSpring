@@ -1,7 +1,7 @@
 package com.novatech.paginaweb.controller;
 
+import com.novatech.paginaweb.dao.ProductoRepository;
 import com.novatech.paginaweb.model.Producto;
-import com.novatech.paginaweb.repository.ProductoRepository;
 import com.novatech.paginaweb.service.ProductoService;
 
 import org.springframework.beans.factory.annotation.Autowired;

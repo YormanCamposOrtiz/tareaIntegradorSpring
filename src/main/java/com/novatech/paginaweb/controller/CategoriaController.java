@@ -1,7 +1,8 @@
 package com.novatech.paginaweb.controller;
 
+import com.novatech.paginaweb.dao.CategoriaRepository;
 import com.novatech.paginaweb.model.Categoria;
-import com.novatech.paginaweb.repository.CategoriaRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

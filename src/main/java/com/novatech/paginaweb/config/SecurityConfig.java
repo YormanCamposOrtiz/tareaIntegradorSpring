@@ -2,6 +2,7 @@ package com.novatech.paginaweb.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // IMPORTANTE
@@ -14,7 +15,9 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // AGREGA ESTO: Es la herramienta que usará tu Service y Controller
+    @Autowired
+    private JwtFilter jwtFilter; // Inyectamos el filtro creado 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -32,13 +35,27 @@ public class SecurityConfig {
                 return config;
             }))
             .csrf(csrf -> csrf.disable()) 
+            // ¡ESTO ES NUEVO E IMPORTANTE!: Desactiva la creación de sesiones en el servidor
+            .sessionManagement(session -> session.sessionCreationPolicy(org.springframework.security.config.http.SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Login y Registro libres
-                .requestMatchers("/api/productos/**").permitAll() // Productos libres para ver
-                .anyRequest().permitAll() 
+                // Endpoints públicos: permitimos el acceso total a auth y todo lo que esté bajo /api/productos y /api/categorias
+                .requestMatchers("/api/auth/**").permitAll() 
+                .requestMatchers("/api/productos", "/api/productos/**").permitAll() 
+                .requestMatchers("/api/categorias", "/api/categorias/**").permitAll() 
+                .requestMatchers("/api/ventas", "/api/ventas/**").permitAll() 
+
+                // Endpoints protegidos por Roles
+                .requestMatchers("/api/productos/guardar", "/api/productos/eliminar").hasRole("ADMINISTRADOR")
+                .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
+                
+                // Cualquier otra ruta requiere estar logueado
+                .anyRequest().authenticated() 
             )
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable());
+
+        // Agrega el filtro JWT antes del filtro por defecto de Spring
+        http.addFilterBefore(jwtFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

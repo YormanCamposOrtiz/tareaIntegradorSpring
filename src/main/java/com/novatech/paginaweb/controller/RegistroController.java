@@ -1,7 +1,7 @@
 package com.novatech.paginaweb.controller;
 
+import com.novatech.paginaweb.dao.UsuarioRepository;
 import com.novatech.paginaweb.model.Usuario;
-import com.novatech.paginaweb.repository.UsuarioRepository; // Importar el repositorio
 import com.novatech.paginaweb.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
