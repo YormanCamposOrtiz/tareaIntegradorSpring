@@ -17,8 +17,10 @@ public class Compra {
     @JoinColumn(name = "usuario_id")
     private Usuario usuario; // El trabajador que registra la compra
 
+    // En tu archivo Compra.java
     @Column(nullable = false)
-    private LocalDateTime fecha = LocalDateTime.now();
+    @com.fasterxml.jackson.annotation.JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private java.time.LocalDateTime fecha = java.time.LocalDateTime.now();
 
     @Column(nullable = false)
     private Double total;
