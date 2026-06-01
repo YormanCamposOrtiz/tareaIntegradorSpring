@@ -18,4 +18,6 @@ public interface ProductoService {
     void eliminar(Long id);
 
     void reducirStock(Long id, Integer cantidad);
+
+    List<Producto> buscarPorNombre(String nombre);
 }

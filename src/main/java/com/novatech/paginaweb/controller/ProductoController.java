@@ -1,6 +1,5 @@
 package com.novatech.paginaweb.controller;
 
-import com.novatech.paginaweb.dao.ProductoRepository;
 import com.novatech.paginaweb.model.Producto;
 import com.novatech.paginaweb.service.ProductoService;
 
@@ -19,24 +18,27 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
 
-    // ENDPOINT PARA VER TODOS LOS PRODUCTOS (ALMACÉN)
+    // ENDPOINT UNIFICADO PARA VER TODOS LOS PRODUCTOS O FILTRAR POR NOMBRE
     @GetMapping
-    public List<Producto> listarProductos() {
-        // Esto devuelve la lista completa incluyendo el objeto Categoria
+    public List<Producto> listarProductos(@RequestParam(required = false) String nombre) {
+        if (nombre != null && !nombre.trim().isEmpty()) {
+            return productoService.buscarPorNombre(nombre);
+        }
+        // Si no viene el parámetro 'nombre', devuelve la lista completa de visibles
         return productoService.listarVisibles();
     }
 
     // Opcional: Obtener un solo producto por ID
     @GetMapping("/{id}")
     public ResponseEntity<Producto> obtenerProducto(@PathVariable Long id) {
-    Producto producto = productoService.buscarPorId(id);
-    
-    if (producto != null) {
-        return ResponseEntity.ok(producto);
-    } else {
-        return ResponseEntity.notFound().build();
+        Producto producto = productoService.buscarPorId(id);
+
+        if (producto != null) {
+            return ResponseEntity.ok(producto);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
-}
 
     // ENDPOINT PARA GUARDAR O ACTUALIZAR PRODUCTO
     @PostMapping
