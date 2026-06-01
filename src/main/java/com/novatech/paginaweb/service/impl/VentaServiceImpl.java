@@ -82,6 +82,26 @@ public class VentaServiceImpl implements VentaService {
     }
 
     @Override
+    @Transactional // Vital para que si falla la reposición de stock, no se borre nada
+    public void eliminarVenta(Long id) {
+        // 1. Buscar la venta real con sus detalles
+        Venta venta = ventaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("La venta no existe con el ID: " + id));
+
+        // 2. Devolver el stock a los productos antes de eliminar los registros
+        for (DetalleVenta det : venta.getDetalles()) {
+            Producto producto = det.getProducto();
+            if (producto != null) {
+                producto.setStock(producto.getStock() + det.getCantidad());
+                productoRepository.save(producto);
+            }
+        }
+
+        // 3. Eliminar la venta (al tener CascadeType.ALL, borrará sus DetalleVenta automáticamente)
+        ventaRepository.delete(venta);
+    }
+
+    @Override
     public List<Venta> listarTodas() {
         return ventaRepository.findAll();
     }
@@ -89,5 +109,10 @@ public class VentaServiceImpl implements VentaService {
     @Override
     public Venta buscarPorId(Long id) {
         return ventaRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Venta> listarPorFechas(LocalDateTime inicio, LocalDateTime fin) {
+        return ventaRepository.findByFechaBetween(inicio, fin);
     }
 }

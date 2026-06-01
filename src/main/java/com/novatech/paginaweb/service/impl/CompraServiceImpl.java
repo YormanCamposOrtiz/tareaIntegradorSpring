@@ -95,4 +95,27 @@ public class CompraServiceImpl implements CompraService {
     public Optional<Compra> buscarPorId(Long id) {
         return compraRepository.findById(id);
     }
+    @Override
+    @Transactional
+    public void eliminarCompra(Long id) {
+        // 1. Buscar la compra con sus detalles
+        Compra compra = compraRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Compra no encontrada con el ID: " + id));
+
+        // 2. Revertir el stock restando las cantidades ingresadas
+        for (DetalleCompra detalle : compra.getDetalles()) {
+            Producto producto = detalle.getProducto();
+            if (producto != null) {
+                producto.setStock(producto.getStock() - detalle.getCantidad());
+                productoRepository.save(producto);
+            }
+        }
+
+        // 3. Eliminar de la base de datos (elimina cabecera y detalles en cascada)
+        compraRepository.delete(compra);
+    }
+    @Override
+    public List<Compra> listarPorFechas(LocalDateTime inicio, LocalDateTime fin) {
+        return compraRepository.findByFechaBetween(inicio, fin);
+    }
 }
