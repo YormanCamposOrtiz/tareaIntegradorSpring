@@ -2,6 +2,7 @@ package com.novatech.paginaweb.service;
 
 import com.novatech.paginaweb.model.Venta;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface VentaService {
@@ -12,4 +13,8 @@ public interface VentaService {
 
     Venta buscarPorId(Long id);
 
+    void eliminarVenta(Long id);
+
+    // NUEVO:
+    List<Venta> listarPorFechas(LocalDateTime inicio, LocalDateTime fin);
 }
