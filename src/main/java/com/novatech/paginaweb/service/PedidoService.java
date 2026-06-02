@@ -13,8 +13,8 @@ public interface PedidoService {
     // Listar todos los pedidos (para el Admin)
     List<Pedido> listarTodos();
 
-    // Listar pedidos de un cliente específico (para el perfil del Cliente en React)
-    List<Pedido> listarPorCliente(Long clienteId);
+    // Listar pedidos de un usuario específico (para el perfil del Usuario en React)
+    List<Pedido> listarPorUsuario(Long usuarioId);
 
     Optional<Pedido> obtenerPorId(Long id);
 
