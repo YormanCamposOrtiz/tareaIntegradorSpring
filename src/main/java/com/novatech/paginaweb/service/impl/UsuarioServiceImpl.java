@@ -57,7 +57,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .roles(usuario.getRol())
                 .build();
     }
-    
 
     @Override
     public Usuario registrarNuevoUsuario(Usuario usuario) {
