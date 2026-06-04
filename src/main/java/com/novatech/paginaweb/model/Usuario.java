@@ -10,7 +10,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
-// Usa Lombok para getters/setters si lo tienes, si no, añádelos manualmente.
 
 @Entity
 @Table(name = "usuarios")
@@ -32,6 +31,13 @@ public class Usuario {
     @Column(nullable = false)
     private String rol;
 
+    // 🔍 NUEVOS CAMPOS AGREGADOS
+    @Column(length = 255) // Permite guardar una dirección detallada (Calle, Distrito, etc.)
+    private String direccion;
+
+    @Column(length = 20) // Guarda el número telefónico como String para evitar pérdida de ceros a la izquierda
+    private String telefono;
+
     // Campos de Seguridad
     @Column(name = "intentos_fallidos", columnDefinition = "INT DEFAULT 0")
     private Integer intentosFallidos = 0;
@@ -39,16 +45,18 @@ public class Usuario {
     @Column(name = "bloqueado_hasta")
     private LocalDateTime bloqueadoHasta;
 
-    // Constructor vacío (JPA)
+    // Constructor vacío requerido por JPA
     public Usuario() {
     }
 
-    // Constructor para registro rápido
-    public Usuario(String nombre, String correo, String contrasena, String rol) {
+    // Constructor actualizado para registro completo (incluye dirección y teléfono)
+    public Usuario(String nombre, String correo, String contrasena, String rol, String direccion, String telefono) {
         this.nombre = nombre;
         this.correo = correo;
         this.contrasena = contrasena;
         this.rol = rol;
+        this.direccion = direccion;
+        this.telefono = telefono;
         this.intentosFallidos = 0;
     }
 
@@ -68,6 +76,13 @@ public class Usuario {
 
     public String getRol() { return rol; }
     public void setRol(String rol) { this.rol = rol; }
+
+    // 🔍 Getters y Setters de los nuevos campos
+    public String getDireccion() { return direccion; }
+    public void setDireccion(String direccion) { this.direccion = direccion; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono ) { this.telefono = telefono; }
 
     public Integer getIntentosFallidos() { return intentosFallidos; }
     public void setIntentosFallidos(Integer intentosFallidos) { this.intentosFallidos = intentosFallidos; }
