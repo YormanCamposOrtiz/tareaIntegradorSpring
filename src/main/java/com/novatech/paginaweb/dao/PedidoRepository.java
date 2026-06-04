@@ -9,10 +9,21 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;        
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
+
+    // Listar todos los pedidos ordenados por fecha descendente
+    List<Pedido> findAllByOrderByFechaDesc();
+
+    // Filtro para el Administrador (Todos los usuarios en un rango de fechas)
+    List<Pedido> findByFechaBetweenOrderByFechaDesc(LocalDateTime inicio, LocalDateTime fin);
+
+    // Filtro para el Cliente (Un usuario específico en un rango de fechas)
+    List<Pedido> findByUsuarioIdAndFechaBetweenOrderByFechaDesc(Long usuarioId, LocalDateTime inicio, LocalDateTime fin);
 
     List<Pedido> findByUsuarioIdOrderByFechaDesc(Long usuarioId);
 
