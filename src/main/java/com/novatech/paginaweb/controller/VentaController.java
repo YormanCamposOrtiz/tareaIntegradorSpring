@@ -1,12 +1,19 @@
 package com.novatech.paginaweb.controller;
 
 import com.novatech.paginaweb.model.Venta;
+import com.novatech.paginaweb.service.ExcelReportService;
 import com.novatech.paginaweb.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -39,7 +46,31 @@ public class VentaController {
                     .body(new ErrorResponse("Ocurrió un error inesperado en el servidor al procesar la venta."));
         }
     }
+    @Autowired
+    private ExcelReportService excelReportService;
 
+    @GetMapping("/exportar")
+    public ResponseEntity<InputStreamResource> exportarExcel(
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fin) {
+
+        List<Venta> ventas;
+        if (inicio != null && fin != null) {
+            ventas = ventaService.listarPorFechas(inicio, fin);
+        } else {
+            ventas = ventaService.listarTodas();
+        }
+
+        ByteArrayInputStream in = excelReportService.generarReporteVentas(ventas);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=reporte_ventas.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(in));
+    }
     /**
      * GET /api/ventas
      * UNIFICADO: Maneja tanto el historial completo como el filtro por fechas en un solo endpoint

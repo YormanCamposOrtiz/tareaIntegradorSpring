@@ -1,17 +1,22 @@
 package com.novatech.paginaweb.controller;
 
 import com.novatech.paginaweb.model.Pedido;
+import com.novatech.paginaweb.service.ExcelReportService;
 import com.novatech.paginaweb.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayInputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/pedidos")
-@CrossOrigin(origins = "http://localhost:5173") // 👈 Úsalo exactamente igual que en el LoginController
+@CrossOrigin(origins = "http://localhost:5173")
 public class PedidoController {
 
     @Autowired
@@ -24,45 +29,47 @@ public class PedidoController {
     @PostMapping
     public ResponseEntity<?> crearPedido(@RequestBody Pedido pedido) {
         try {
-            // Validaciones básicas de integridad antes de mandar a la BD
             if (pedido.getUsuario() == null || pedido.getUsuario().getId() == null) {
                 return ResponseEntity.badRequest().body("Error: El usuario es obligatorio para registrar el pedido.");
             }
             if (pedido.getDetalles() == null || pedido.getDetalles().isEmpty()) {
                 return ResponseEntity.badRequest().body("Error: El pedido debe contener al menos un artículo.");
             }
-
-            // Invocamos al servicio que ejecuta el procedimiento y nos devuelve el Pedido persistido
-            Pedido nuevoPedido = pedidoService.crearPedido(pedido);
-            
-            // Retornamos un estado 201 Created con el objeto completo
-            return ResponseEntity.status(HttpStatus.CREATED).body(nuevoPedido);
-
+            return ResponseEntity.ok(pedidoService.crearPedido(pedido));
         } catch (RuntimeException e) {
-            // Captura excepciones como 'Stock insuficiente para el producto ID X' lanzadas por PostgreSQL
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Hubo un error inesperado en el servidor al procesar el pedido.");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     /**
-     * GET /api/pedidos
-     * Lista todos los pedidos registrados en el sistema (Útil para la vista de Administrador).
+     * UNIFICADO: GET /api/pedidos
+     * Soporta tanto listado total como filtrado por rango de fechas opcional (Vista Administrador).
      */
     @GetMapping
-    public ResponseEntity<List<Pedido>> listarTodos() {
-        return ResponseEntity.ok(pedidoService.listarTodos());
+    public ResponseEntity<List<Pedido>> listarTodos(
+            @RequestParam(value = "inicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(value = "fin", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
+
+        LocalDateTime desde = (inicio != null) ? inicio.atStartOfDay() : null;
+        LocalDateTime hasta = (fin != null) ? fin.atTime(LocalTime.MAX) : null;
+
+        return ResponseEntity.ok(pedidoService.listarTodos(desde, hasta));
     }
 
     /**
-     * GET /api/pedidos/usuario/{usuarioId}
-     * Lista el historial de pedidos de un usuario específico para renderizarlo en su perfil de React.
+     * UNIFICADO: GET /api/pedidos/usuario/{usuarioId}
+     * Soporta tanto el historial completo del usuario como el filtrado por rango de fechas opcional (Vista Cliente).
      */
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<Pedido>> listarPorUsuario(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(pedidoService.listarPorUsuario(usuarioId));
+    public ResponseEntity<List<Pedido>> listarPorUsuario(
+            @PathVariable Long usuarioId,
+            @RequestParam(value = "inicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(value = "fin", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
+
+        LocalDateTime desde = (inicio != null) ? inicio.atStartOfDay() : null;
+        LocalDateTime hasta = (fin != null) ? fin.atTime(LocalTime.MAX) : null;
+
+        return ResponseEntity.ok(pedidoService.listarPorUsuario(usuarioId, desde, hasta));
     }
 
     /**
@@ -102,5 +109,37 @@ public class PedidoController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+    @Autowired
+    private ExcelReportService excelReportService;
+
+    /**
+     * GET /api/pedidos/exportar
+     * Genera y descarga un archivo Excel con los pedidos (Soporta filtrado opcional de fechas).
+     */
+    @GetMapping("/exportar")
+    public ResponseEntity<org.springframework.core.io.InputStreamResource> exportarAExcel(
+            @RequestParam(value = "inicio", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam(value = "fin", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fin) {
+
+        // 1. Reutilizamos la lógica de mapeo temporal que ya tienes estructurada
+        LocalDateTime desde = (inicio != null) ? inicio.atStartOfDay() : null;
+        LocalDateTime hasta = (fin != null) ? fin.atTime(LocalTime.MAX) : null;
+
+        // 2. Buscamos los registros filtrados desde tu base de datos
+        List<Pedido> listaPedidos = pedidoService.listarTodos(desde, hasta);
+
+        // 3. Pasamos los datos recolectados al motor de POI
+        ByteArrayInputStream in = excelReportService.generarReportePedidos(listaPedidos);
+
+        // 4. Configuramos las cabeceras HTTP necesarias para desencadenar la descarga en el navegador
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=reporte_pedidos.xlsx");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(org.springframework.http.MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new org.springframework.core.io.InputStreamResource(in));
     }
 }
