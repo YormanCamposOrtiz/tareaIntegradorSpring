@@ -21,10 +21,8 @@ public class UsuarioController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    /**
-     * PUT /api/perfil/{id}/datos
-     * Actualiza la dirección única o teléfono en NeonTech
-     */
+    //Acutaliza la dirección y el teléfono del usuario 
+
     @PutMapping("/{id}/datos")
     public ResponseEntity<?> actualizarPerfil(@PathVariable Long id, @RequestBody Map<String, String> datos) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
@@ -43,10 +41,8 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioGuardado);
     }
 
-    /**
-     * PUT /api/perfil/{id}/contrasena
-     * Cambia la contraseña aplicando la encriptación BCrypt
-     */
+    //Cambia la contraseña aplicando la encriptación BCrypt
+    
     @PutMapping("/{id}/contrasena")
     public ResponseEntity<?> cambiarContrasena(@PathVariable Long id, @RequestBody Map<String, String> datos) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
