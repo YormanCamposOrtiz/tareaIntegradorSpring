@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,6 +45,21 @@ public class PedidoServiceImpl implements PedidoService {
         // 3. Recuperar la entidad completa con todas sus relaciones desde la base de datos
         return pedidoRepository.findById(pedidoIdGenerated.longValue())
                 .orElseThrow(() -> new RuntimeException("Error al recuperar el pedido generado por la BD."));
+    }
+
+    @Override
+    public List<Pedido> listarTodos(LocalDateTime inicio, LocalDateTime fin) {
+        if (inicio != null && fin != null) {
+            return pedidoRepository.findByFechaBetweenOrderByFechaDesc(inicio, fin);
+        }
+        return pedidoRepository.findAllByOrderByFechaDesc();
+    }
+    @Override
+    public List<Pedido> listarPorUsuario(Long usuarioId, LocalDateTime inicio, LocalDateTime fin) {
+        if (inicio != null && fin != null) {
+            return pedidoRepository.findByUsuarioIdAndFechaBetweenOrderByFechaDesc(usuarioId, inicio, fin);
+        }
+        return pedidoRepository.findByUsuarioIdOrderByFechaDesc(usuarioId);
     }
 
     @Override
