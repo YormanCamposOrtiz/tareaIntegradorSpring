@@ -41,25 +41,22 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioGuardado);
     }
 
-    //Cambia la contraseña aplicando la encriptación BCrypt
-    
     @PutMapping("/{id}/contrasena")
     public ResponseEntity<?> cambiarContrasena(@PathVariable Long id, @RequestBody Map<String, String> datos) {
         Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
-        
         if (usuarioOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Error: Usuario no encontrado.");
         }
-
         String nuevaClave = datos.get("nuevaContrasena");
-        if (nuevaClave == null || nuevaClave.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Error: La contraseña no puede estar vacía.");
+        // Expresión regular copiada o referenciada
+        String passwordRegex = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&._#\\-+=¿¡])[A-Za-z\\d@$!%*?&._#\\-+=¿¡]{8,}$";
+        if (nuevaClave == null || !nuevaClave.matches(passwordRegex)) {
+            return ResponseEntity.badRequest().body("Error: La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, números y un signo especial.");
         }
-
         Usuario usuario = usuarioOpt.get();
         String claveEncriptada = passwordEncoder.encode(nuevaClave);
-        usuario.setContrasena(claveEncriptada); 
-        
+        usuario.setContrasena(claveEncriptada);
+
         usuarioRepository.save(usuario);
         return ResponseEntity.ok("Contraseña actualizada con éxito.");
     }
