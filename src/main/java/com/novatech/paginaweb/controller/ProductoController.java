@@ -2,6 +2,7 @@ package com.novatech.paginaweb.controller;
 
 import com.novatech.paginaweb.model.Producto;
 import com.novatech.paginaweb.service.ExcelReportService;
+import com.novatech.paginaweb.service.PdfReportService;
 import com.novatech.paginaweb.service.ProductoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,5 +81,21 @@ public class ProductoController {
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    @Autowired
+    private PdfReportService pdfReportService;
+
+    @GetMapping("/exportar-pdf")
+    public ResponseEntity<org.springframework.core.io.InputStreamResource> exportarPdf() {
+        List<Producto> productos = productoService.listarVisibles();
+
+        java.io.ByteArrayInputStream in = pdfReportService.generarPdfProductos(productos);
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=inventario_productos.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(new org.springframework.core.io.InputStreamResource(in));
     }
 }
