@@ -21,6 +21,16 @@ public class UsuarioController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerPerfil(@PathVariable Long id) {
+        Optional<Usuario> usuarioOpt = usuarioRepository.findById(id);
+        if (usuarioOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Error: Usuario no encontrado.");
+        }
+        return ResponseEntity.ok(usuarioOpt.get());
+    }
+
+
     //Acutaliza la dirección y el teléfono del usuario 
 
     @PutMapping("/{id}/datos")
