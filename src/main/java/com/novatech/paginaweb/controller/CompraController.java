@@ -1,8 +1,10 @@
 package com.novatech.paginaweb.controller;
 
 import com.novatech.paginaweb.model.Compra;
+import com.novatech.paginaweb.model.Venta;
 import com.novatech.paginaweb.service.CompraService;
 import com.novatech.paginaweb.service.ExcelReportService;
+import com.novatech.paginaweb.service.PdfReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -98,5 +100,20 @@ public class CompraController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+    @Autowired
+    private PdfReportService pdfReportService;
+
+    @GetMapping("/exportar-pdf")
+    public ResponseEntity<org.springframework.core.io.InputStreamResource> exportarPdf() {
+        List<Compra> compras = compraService.listarTodas();
+
+        java.io.ByteArrayInputStream in = pdfReportService.generarPdfCompras(compras);
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=reporte_compras.pdf");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(new org.springframework.core.io.InputStreamResource(in));
     }
 }

@@ -2,6 +2,7 @@ package com.novatech.paginaweb.controller;
 
 import com.novatech.paginaweb.model.Venta;
 import com.novatech.paginaweb.service.ExcelReportService;
+import com.novatech.paginaweb.service.PdfReportService;
 import com.novatech.paginaweb.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -64,8 +65,7 @@ public class VentaController {
         ByteArrayInputStream in = excelReportService.generarReporteVentas(ventas);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=reporte_ventas.xlsx");
-
+        headers.add("Content-Disposition", "attachment; filename=reporte_ventas.pdf");
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
@@ -136,5 +136,21 @@ public class VentaController {
         public ErrorResponse(String message) { this.message = message; }
         public String getMessage() { return message; }
         public void setMessage(String message) { this.message = message; }
+    }
+    @Autowired
+    private PdfReportService pdfReportService;
+
+    @GetMapping("/exportar-pdf")
+    public ResponseEntity<org.springframework.core.io.InputStreamResource> exportarPdf() {
+        List<Venta> ventas = ventaService.listarTodas();
+
+        java.io.ByteArrayInputStream in = pdfReportService.generarPdfVentas(ventas);
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=inventario_productos.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(new org.springframework.core.io.InputStreamResource(in));
     }
 }

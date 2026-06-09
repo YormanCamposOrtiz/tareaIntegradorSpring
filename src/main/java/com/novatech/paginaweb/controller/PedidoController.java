@@ -2,6 +2,7 @@ package com.novatech.paginaweb.controller;
 
 import com.novatech.paginaweb.model.Pedido;
 import com.novatech.paginaweb.service.ExcelReportService;
+import com.novatech.paginaweb.service.PdfReportService;
 import com.novatech.paginaweb.service.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -140,6 +141,22 @@ public class PedidoController {
                 .ok()
                 .headers(headers)
                 .contentType(org.springframework.http.MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new org.springframework.core.io.InputStreamResource(in));
+    }
+    @Autowired
+    private PdfReportService pdfReportService;
+
+    @GetMapping("/exportar-pdf")
+    public ResponseEntity<org.springframework.core.io.InputStreamResource> exportarPdf() {
+        List<Pedido> pedidos = pedidoService.listarTodos(); // o el método que uses para obtener los datos
+
+        java.io.ByteArrayInputStream in = pdfReportService.generarPdfPedidos(pedidos);
+        org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=reporte_pedidos.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF) // Tipo de contenido correcto para PDF
                 .body(new org.springframework.core.io.InputStreamResource(in));
     }
 }
