@@ -117,11 +117,16 @@
 		</dependency>
 
 		<!-- Apache POI -->
-		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi-ooxml</artifactId>
-			<version>5.4.1</version>
-		</dependency>
+       <dependency>
+           <groupId>org.apache.poi</groupId>
+           <artifactId>poi</artifactId>
+           <version>5.4.1</version>
+       </dependency>
+       <dependency>
+           <groupId>org.apache.poi</groupId>
+           <artifactId>poi-ooxml</artifactId>
+           <version>5.4.1</version>
+       </dependency>
 
 		<!-- Logback(ya esta integrada internamente) -->
 		<!--<dependency>
@@ -129,7 +134,7 @@
 			<artifactId>logback-classic</artifactId>
 			<version>1.5.18</version>
 		</dependency> -->
-		
+
 
     </dependencies>
 
