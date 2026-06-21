@@ -1,12 +1,6 @@
 
 package com.novatech.paginaweb.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -38,6 +32,12 @@ public class Usuario {
     @Column(length = 20) // Guarda el número telefónico como String para evitar pérdida de ceros a la izquierda
     private String telefono;
 
+    @Column(length = 8) // Permite guardar el DNI (8 caracteres)
+    private String dni;
+
+    @Column(length = 255)
+    private String apellidos; // Nuevo campo para el apellido del usuario
+
     // Campos de Seguridad
     @Column(name = "intentos_fallidos", columnDefinition = "INT DEFAULT 0")
     private Integer intentosFallidos = 0;
@@ -50,13 +50,15 @@ public class Usuario {
     }
 
     // Constructor actualizado para registro completo (incluye dirección y teléfono)
-    public Usuario(String nombre, String correo, String contrasena, String rol, String direccion, String telefono) {
+    public Usuario(String nombre, String apellidos, String correo, String contrasena, String rol, String direccion, String telefono, String dni) {
         this.nombre = nombre;
+        this.apellidos = apellidos;
         this.correo = correo;
         this.contrasena = contrasena;
         this.rol = rol;
         this.direccion = direccion;
         this.telefono = telefono;
+        this.dni = dni;
         this.intentosFallidos = 0;
     }
 
@@ -83,6 +85,12 @@ public class Usuario {
 
     public String getTelefono() { return telefono; }
     public void setTelefono(String telefono ) { this.telefono = telefono; }
+
+    public String getDni() { return dni; }
+    public void setDni(String dni) { this.dni = dni; }
+
+    public String getApellidos() { return apellidos; }
+    public void setApellidos(String apellidos) { this.apellidos = apellidos; }
 
     public Integer getIntentosFallidos() { return intentosFallidos; }
     public void setIntentosFallidos(Integer intentosFallidos) { this.intentosFallidos = intentosFallidos; }

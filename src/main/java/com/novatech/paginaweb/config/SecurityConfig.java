@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
                 
                 // 2º RUTAS PÚBLICAS GENERALES (Para ver productos, categorías, ventas o autenticarse)
+                .requestMatchers("/api/perfil/**").permitAll() 
                 .requestMatchers("/api/auth/**").permitAll() 
                 .requestMatchers("/api/productos", "/api/productos/**").permitAll() 
                 .requestMatchers("/api/categorias", "/api/categorias/**").permitAll() 
