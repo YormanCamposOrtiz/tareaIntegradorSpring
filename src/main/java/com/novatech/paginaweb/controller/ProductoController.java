@@ -2,7 +2,6 @@ package com.novatech.paginaweb.controller;
 
 import com.novatech.paginaweb.model.Producto;
 import com.novatech.paginaweb.service.ExcelReportService;
-import com.novatech.paginaweb.service.PdfReportService;
 import com.novatech.paginaweb.service.ProductoService;
 
 import org.springframework.beans.factory.annotation.Autowired;

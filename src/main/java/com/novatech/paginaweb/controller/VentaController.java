@@ -2,7 +2,6 @@ package com.novatech.paginaweb.controller;
 
 import com.novatech.paginaweb.model.Venta;
 import com.novatech.paginaweb.service.ExcelReportService;
-import com.novatech.paginaweb.service.PdfReportService;
 import com.novatech.paginaweb.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -65,7 +64,8 @@ public class VentaController {
         ByteArrayInputStream in = excelReportService.generarReporteVentas(ventas);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=reporte_ventas.pdf");
+        headers.add("Content-Disposition", "attachment; filename=reporte_ventas.xlsx");
+
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
