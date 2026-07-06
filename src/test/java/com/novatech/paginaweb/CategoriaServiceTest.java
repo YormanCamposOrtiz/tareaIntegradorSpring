@@ -17,14 +17,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class) // Inicialización ultra rápida sin levantar el servidor de Spring ni JWT
+@ExtendWith(MockitoExtension.class) 
 class CategoriaServiceTest {
 
     @Mock
-    private CategoriaRepository categoriaRepository; // Simula el DAO perfectamente [cite: 6]
+    private CategoriaRepository categoriaRepository; 
 
     @InjectMocks
-    private CategoriaServiceImpl categoriaService; // Inyecta el mock en tu implementación real
+    private CategoriaServiceImpl categoriaService; 
 
     @Test
     void testListarCategoriasCorrectamente() {
