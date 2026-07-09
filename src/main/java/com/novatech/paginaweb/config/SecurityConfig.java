@@ -45,6 +45,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/productos/guardar", "/api/productos/eliminar").hasRole("ADMINISTRADOR")
                 .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
                 
+                // Actuator / Prometheus (monitoreo)
+                .requestMatchers("/actuator/**").permitAll()
+
                 // 2º RUTAS PÚBLICAS GENERALES (Para ver productos, categorías, ventas o autenticarse)
                 .requestMatchers("/api/perfil/**").permitAll() 
                 .requestMatchers("/api/auth/**").permitAll() 

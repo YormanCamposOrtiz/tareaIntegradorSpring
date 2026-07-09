@@ -27,6 +27,10 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     List<Pedido> findByUsuarioIdOrderByFechaDesc(Long usuarioId);
 
+    List<Pedido> findByEstadoAndFechaBefore(String estado, LocalDateTime fecha);
+
+    long countByEstado(String estado);
+
     @Query(
         value = """
             SELECT procesar_registro_pedido(

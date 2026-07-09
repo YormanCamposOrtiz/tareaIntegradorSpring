@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: paginaweb
+    orgId: 1
+    folder: NovaTech
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards
