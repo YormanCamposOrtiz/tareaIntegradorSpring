@@ -51,6 +51,11 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
+    public long contarProductosStockBajo() {
+         return productoRepository.contarStockBajo();
+    }
+
+    @Override
     // Método crucial para el flujo de ventas
     public void reducirStock(Long id, Integer cantidad) {
         Producto producto = buscarPorId(id);

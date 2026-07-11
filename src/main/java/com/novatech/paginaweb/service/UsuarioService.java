@@ -7,4 +7,5 @@ public interface UsuarioService extends UserDetailsService {
     Usuario registrarNuevoUsuario(Usuario usuario);
     String generarTokenRecuperacion(String correo);
     void completarRecuperacion(String token, String nuevaContrasena);
+    long contarClientes ();
 }

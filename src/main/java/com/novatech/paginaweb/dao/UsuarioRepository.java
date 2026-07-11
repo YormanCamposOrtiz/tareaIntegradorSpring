@@ -10,4 +10,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     
     // Spring generará la consulta automáticamente basándose en el nombre del método
     Optional<Usuario> findByCorreo(String correo);
+    long countByRol(String rol);
 }

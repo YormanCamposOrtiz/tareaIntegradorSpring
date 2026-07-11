@@ -15,6 +15,7 @@ public interface VentaService {
 
     void eliminarVenta(Long id);
 
-    // NUEVO:
     List<Venta> listarPorFechas(LocalDateTime inicio, LocalDateTime fin);
+
+    Double obtenerVentasHoy();
 }

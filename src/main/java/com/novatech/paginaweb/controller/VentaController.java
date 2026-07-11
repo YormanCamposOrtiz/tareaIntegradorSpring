@@ -130,6 +130,12 @@ public class VentaController {
         }
     }
 
+    @GetMapping("/ventas-hoy")
+    public ResponseEntity<Double> obtenerVentasHoy() {
+        return ResponseEntity.ok(ventaService.obtenerVentasHoy());
+    }
+
+
     // Clase interna útil para estructurar los mensajes de error en formato JSON para el frontend
     public static class ErrorResponse {
         private String message;

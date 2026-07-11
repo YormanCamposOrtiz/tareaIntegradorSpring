@@ -2,6 +2,7 @@ package com.novatech.paginaweb.dao;
 
 import com.novatech.paginaweb.model.Producto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,5 +13,12 @@ public interface ProductoRepository extends JpaRepository<Producto, Long> {
 
     // Busca productos cuyo nombre contenga el texto ingresado ignorando mayúsculas y minúsculas
     List<Producto> findByNombreContainingIgnoreCase(String nombre);
+
+    @Query("""
+        SELECT COUNT(p)
+        FROM Producto p
+        WHERE p.stock <= p.stockMin
+    """)
+    long contarStockBajo();
 
 }
