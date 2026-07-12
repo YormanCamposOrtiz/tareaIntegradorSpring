@@ -1,8 +1,7 @@
 package com.novatech.paginaweb.dao;
 
-import com.novatech.paginaweb.model.Pedido;
-
-import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,8 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;        
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import com.novatech.paginaweb.model.Pedido;
 
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
@@ -26,10 +24,6 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<Pedido> findByUsuarioIdAndFechaBetweenOrderByFechaDesc(Long usuarioId, LocalDateTime inicio, LocalDateTime fin);
 
     List<Pedido> findByUsuarioIdOrderByFechaDesc(Long usuarioId);
-
-    List<Pedido> findByEstadoAndFechaBefore(String estado, LocalDateTime fecha);
-
-    long countByEstado(String estado);
 
     @Query(
         value = """
@@ -51,9 +45,9 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
         @Param("p_cantidades") Integer[] cantidades
     );
 
-
+    @Modifying
     @Query(
-        value = "SELECT cancelar_pedido(:pedidoId)",
+        value ="SELECT cancelar_pedido(:pedidoId)", 
         nativeQuery = true
     )
     void cancelarPedidoProcedimiento(
