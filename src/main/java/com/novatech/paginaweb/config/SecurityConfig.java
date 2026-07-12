@@ -39,26 +39,18 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
         .csrf(csrf -> csrf.disable()) 
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/**").permitAll()
-            // PRIMERO: Rutas totalmente públicas
-            .requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers("/api/productos/**").permitAll()
-            .requestMatchers("/api/categorias/**").permitAll()
-            .requestMatchers("/api/ventas/**").permitAll()
-            .requestMatchers("/api/compras/**").permitAll()
-            .requestMatchers("/api/pedidos/**").permitAll()
-            
-            // Luego las protegidas
-            .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
-            .requestMatchers("/api/productos/guardar", "/api/productos/eliminar").hasRole("ADMINISTRADOR")
-            
-            .anyRequest().authenticated()
-        )
-        .formLogin(form -> form.disable())
-        .httpBasic(basic -> basic.disable());
-
-    // 🔥 COMENTADO COMPLETAMENTE
-    // http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        .requestMatchers("/api/auth/**").permitAll()
+        .requestMatchers("/api/productos/**").permitAll()
+        .requestMatchers("/api/categorias/**").permitAll()
+        .requestMatchers("/api/ventas/**").permitAll()
+        .requestMatchers("/api/compras/**").permitAll()
+        .requestMatchers("/api/pedidos/**").permitAll()
+        .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
+        .requestMatchers("/api/productos/guardar", "/api/productos/eliminar").hasRole("ADMINISTRADOR")
+        .anyRequest().authenticated()
+        );
+// Reactivar el filtro JWT si lo necesitas:
+//.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
 }

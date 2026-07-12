@@ -2,11 +2,12 @@ package com.novatech.paginaweb.dao;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;        
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.novatech.paginaweb.model.Pedido;
@@ -14,16 +15,56 @@ import com.novatech.paginaweb.model.Pedido;
 @Repository
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
-    // Listar todos los pedidos ordenados por fecha descendente
     List<Pedido> findAllByOrderByFechaDesc();
 
-    // Filtro para el Administrador (Todos los usuarios en un rango de fechas)
     List<Pedido> findByFechaBetweenOrderByFechaDesc(LocalDateTime inicio, LocalDateTime fin);
 
-    // Filtro para el Cliente (Un usuario específico en un rango de fechas)
     List<Pedido> findByUsuarioIdAndFechaBetweenOrderByFechaDesc(Long usuarioId, LocalDateTime inicio, LocalDateTime fin);
 
     List<Pedido> findByUsuarioIdOrderByFechaDesc(Long usuarioId);
+
+    @Query("SELECT DISTINCT p FROM Pedido p " +
+           "LEFT JOIN FETCH p.usuario " +
+           "LEFT JOIN FETCH p.detalles d " +
+           "LEFT JOIN FETCH d.producto " +
+           "ORDER BY p.fecha DESC")
+    List<Pedido> findAllWithDetalles();
+
+    @Query("SELECT DISTINCT p FROM Pedido p " +
+           "LEFT JOIN FETCH p.usuario " +
+           "LEFT JOIN FETCH p.detalles d " +
+           "LEFT JOIN FETCH d.producto " +
+           "WHERE p.fecha BETWEEN :inicio AND :fin " +
+           "ORDER BY p.fecha DESC")
+    List<Pedido> findByFechaBetweenWithDetalles(
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT DISTINCT p FROM Pedido p " +
+           "LEFT JOIN FETCH p.usuario " +
+           "LEFT JOIN FETCH p.detalles d " +
+           "LEFT JOIN FETCH d.producto " +
+           "WHERE p.usuario.id = :usuarioId " +
+           "ORDER BY p.fecha DESC")
+    List<Pedido> findByUsuarioIdWithDetalles(@Param("usuarioId") Long usuarioId);
+
+    @Query("SELECT DISTINCT p FROM Pedido p " +
+           "LEFT JOIN FETCH p.usuario " +
+           "LEFT JOIN FETCH p.detalles d " +
+           "LEFT JOIN FETCH d.producto " +
+           "WHERE p.usuario.id = :usuarioId AND p.fecha BETWEEN :inicio AND :fin " +
+           "ORDER BY p.fecha DESC")
+    List<Pedido> findByUsuarioIdAndFechaBetweenWithDetalles(
+            @Param("usuarioId") Long usuarioId,
+            @Param("inicio") LocalDateTime inicio,
+            @Param("fin") LocalDateTime fin);
+
+    @Query("SELECT p FROM Pedido p " +
+           "LEFT JOIN FETCH p.usuario " +
+           "LEFT JOIN FETCH p.detalles d " +
+           "LEFT JOIN FETCH d.producto " +
+           "WHERE p.id = :id")
+    Optional<Pedido> findByIdWithDetalles(@Param("id") Long id);
 
     @Query(
         value = """
@@ -47,7 +88,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
     @Modifying
     @Query(
-        value ="SELECT cancelar_pedido(:pedidoId)", 
+        value = "SELECT cancelar_pedido(:pedidoId)",
         nativeQuery = true
     )
     void cancelarPedidoProcedimiento(

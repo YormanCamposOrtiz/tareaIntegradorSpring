@@ -1,18 +1,18 @@
 package com.novatech.paginaweb.service.impl;
 
-import com.novatech.paginaweb.model.Pedido;
-import com.novatech.paginaweb.dao.PedidoRepository;
-import com.novatech.paginaweb.model.DetallePedido;
-import com.novatech.paginaweb.service.PedidoService;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.novatech.paginaweb.dao.PedidoRepository;
+import com.novatech.paginaweb.model.DetallePedido;
+import com.novatech.paginaweb.model.Pedido;
+import com.novatech.paginaweb.service.PedidoService;
 
 @Service
 public class PedidoServiceImpl implements PedidoService {
@@ -43,47 +43,53 @@ public class PedidoServiceImpl implements PedidoService {
             );
 
         // 3. Recuperar la entidad completa con todas sus relaciones desde la base de datos
-        return pedidoRepository.findById(pedidoIdGenerated.longValue())
+        return pedidoRepository.findByIdWithDetalles(pedidoIdGenerated.longValue())
                 .orElseThrow(() -> new RuntimeException("Error al recuperar el pedido generado por la BD."));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Pedido> listarTodos(LocalDateTime inicio, LocalDateTime fin) {
         if (inicio != null && fin != null) {
-            return pedidoRepository.findByFechaBetweenOrderByFechaDesc(inicio, fin);
+            return pedidoRepository.findByFechaBetweenWithDetalles(inicio, fin);
         }
-        return pedidoRepository.findAllByOrderByFechaDesc();
+        return pedidoRepository.findAllWithDetalles();
     }
+
     @Override
+    @Transactional(readOnly = true)
     public List<Pedido> listarPorUsuario(Long usuarioId, LocalDateTime inicio, LocalDateTime fin) {
         if (inicio != null && fin != null) {
-            return pedidoRepository.findByUsuarioIdAndFechaBetweenOrderByFechaDesc(usuarioId, inicio, fin);
+            return pedidoRepository.findByUsuarioIdAndFechaBetweenWithDetalles(usuarioId, inicio, fin);
         }
-        return pedidoRepository.findByUsuarioIdOrderByFechaDesc(usuarioId);
+        return pedidoRepository.findByUsuarioIdWithDetalles(usuarioId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Pedido> listarTodos() {
-        return pedidoRepository.findAll();
+        return pedidoRepository.findAllWithDetalles();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Pedido> listarPorUsuario(Long usuarioId) {
-        return pedidoRepository.findByUsuarioIdOrderByFechaDesc(usuarioId);
+        return pedidoRepository.findByUsuarioIdWithDetalles(usuarioId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Pedido> obtenerPorId(Long id) {
-        return pedidoRepository.findById(id);
+        return pedidoRepository.findByIdWithDetalles(id);
     }
 
     @Override
     @Transactional
     public Pedido actualizarEstado(Long id, String nuevoEstado) {
-        return pedidoRepository.findById(id).map(pedido -> {
-            pedido.setEstado(nuevoEstado);
-            return pedidoRepository.save(pedido);
-        }).orElseThrow(() -> new RuntimeException("Pedido no encontrado con ID: " + id));
+        Pedido pedido = pedidoRepository.findByIdWithDetalles(id)
+                .orElseThrow(() -> new RuntimeException("Pedido no encontrado con ID: " + id));
+        pedido.setEstado(nuevoEstado);
+        return pedidoRepository.save(pedido);
     }
 
     @Override
