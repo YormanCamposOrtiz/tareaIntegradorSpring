@@ -1,18 +1,19 @@
 package com.novatech.paginaweb.service.impl;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.novatech.paginaweb.dao.ProductoRepository;
 import com.novatech.paginaweb.dao.VentaRepository;
 import com.novatech.paginaweb.model.DetalleVenta;
 import com.novatech.paginaweb.model.Producto;
 import com.novatech.paginaweb.model.Venta;
 import com.novatech.paginaweb.service.VentaService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class VentaServiceImpl implements VentaService {
@@ -102,17 +103,20 @@ public class VentaServiceImpl implements VentaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Venta> listarTodas() {
-        return ventaRepository.findAll();
+        return ventaRepository.findAllWithDetalles();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Venta buscarPorId(Long id) {
-        return ventaRepository.findById(id).orElse(null);
+        return ventaRepository.findByIdWithDetalles(id).orElse(null);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Venta> listarPorFechas(LocalDateTime inicio, LocalDateTime fin) {
-        return ventaRepository.findByFechaBetween(inicio, fin);
+        return ventaRepository.findByFechaBetweenWithDetalles(inicio, fin);
     }
 }

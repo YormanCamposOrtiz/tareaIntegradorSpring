@@ -46,6 +46,11 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
+    public List<Producto> buscarPorNombre(String nombre) {
+        return productoRepository.findByNombreContainingIgnoreCase(nombre);
+    }
+
+    @Override
     // Método crucial para el flujo de ventas
     public void reducirStock(Long id, Integer cantidad) {
         Producto producto = buscarPorId(id);

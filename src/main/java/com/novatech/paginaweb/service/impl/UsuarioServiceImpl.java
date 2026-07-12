@@ -32,6 +32,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private JavaMailSender mailSender;
 
+    private static final String PASSWORD_REGEX = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&._#\\-+=¿¡])[A-Za-z\\d@$!%*?&._#\\-+=¿¡]{8,}$";
+
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private static final String CARACTERES = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -58,28 +60,26 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .build();
     }
 
+
     @Override
     public Usuario registrarNuevoUsuario(Usuario usuario) {
-        // 1. Validaciones de integridad
+        // 1. Validaciones de integridad básicos
         Preconditions.checkArgument(!Strings.isNullOrEmpty(usuario.getNombre()), "El nombre es obligatorio");
         Preconditions.checkArgument(!Strings.isNullOrEmpty(usuario.getCorreo()), "El correo es obligatorio");
-        Preconditions.checkArgument(usuario.getContrasena() != null && usuario.getContrasena().length() >= 8,
-                "La contrasena debe tener al menos 8 caracteres");
-
-        // 2. Verificar si ya existe
+        // 2. Nueva validación de seguridad robusta para la contraseña
+        Preconditions.checkArgument(usuario.getContrasena() != null && usuario.getContrasena().matches(PASSWORD_REGEX),
+                "La contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, al menos un número y un signo especial");
+        // 3. Verificar si ya existe
         if (usuarioRepository.findByCorreo(usuario.getCorreo()).isPresent()) {
-            throw new RuntimeException("El correo ya esta registrado");
+            throw new RuntimeException("El correo ya está registrado");
         }
-
-        // 3. LÓGICA DE ROL DINÁMICO
+        // 4. LÓGICA DE ROL DINÁMICO
         if (Strings.isNullOrEmpty(usuario.getRol())) {
             usuario.setRol("Usuario");
         }
-
-        // 4. Seguridad y persistencia
+        // 5. Seguridad y persistencia
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         usuario.setIntentosFallidos(0);
-
         return usuarioRepository.save(usuario);
     }
 
@@ -105,12 +105,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public void completarRecuperacion(String token, String nuevaContrasena) {
         String correo = recoveryTokens.getIfPresent(token);
-
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(correo), "El codigo ha expirado o es invalido.");
-        Preconditions.checkArgument(nuevaContrasena.length() >= 8, "La nueva contrasena debe tener al menos 8 caracteres.");
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(correo), "El código ha expirado o es inválido.");
+        // También aplicamos la validación aquí para que la nueva contraseña recuperada sea segura
+        Preconditions.checkArgument(nuevaContrasena != null && nuevaContrasena.matches(PASSWORD_REGEX),
+                "La nueva contraseña debe tener al menos 8 caracteres, incluir una letra mayúscula, al menos un número y un signo especial.");
 
         Usuario usuario = usuarioRepository.findByCorreo(correo).get();
-
         usuario.setContrasena(passwordEncoder.encode(nuevaContrasena));
         usuario.setIntentosFallidos(0);
         usuario.setBloqueadoHasta(null);

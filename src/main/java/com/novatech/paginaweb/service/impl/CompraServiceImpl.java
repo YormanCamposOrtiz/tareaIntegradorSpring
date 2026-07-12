@@ -1,20 +1,20 @@
 package com.novatech.paginaweb.service.impl;
 
-import com.novatech.paginaweb.dao.CompraRepository;
-import com.novatech.paginaweb.dao.ProductoRepository; 
-import com.novatech.paginaweb.model.Compra;
-import com.novatech.paginaweb.model.DetalleCompra;
-import com.novatech.paginaweb.model.Producto;         
-import com.novatech.paginaweb.service.CompraService;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import com.novatech.paginaweb.dao.CompraRepository;
+import com.novatech.paginaweb.dao.ProductoRepository;
+import com.novatech.paginaweb.model.Compra;
+import com.novatech.paginaweb.model.DetalleCompra;
+import com.novatech.paginaweb.model.Producto;
+import com.novatech.paginaweb.service.CompraService;
 
 @Service
 public class CompraServiceImpl implements CompraService {
@@ -87,14 +87,23 @@ public class CompraServiceImpl implements CompraService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Compra> listarTodas() {
-        return compraRepository.findAll();
+        return compraRepository.findAllWithDetalles();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Compra> buscarPorId(Long id) {
-        return compraRepository.findById(id);
+        return compraRepository.findByIdWithDetalles(id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Compra> listarPorFechas(LocalDateTime inicio, LocalDateTime fin) {
+        return compraRepository.findByFechaBetweenWithDetalles(inicio, fin);
+    }
+    
     @Override
     @Transactional
     public void eliminarCompra(Long id) {
@@ -113,9 +122,5 @@ public class CompraServiceImpl implements CompraService {
 
         // 3. Eliminar de la base de datos (elimina cabecera y detalles en cascada)
         compraRepository.delete(compra);
-    }
-    @Override
-    public List<Compra> listarPorFechas(LocalDateTime inicio, LocalDateTime fin) {
-        return compraRepository.findByFechaBetween(inicio, fin);
     }
 }
