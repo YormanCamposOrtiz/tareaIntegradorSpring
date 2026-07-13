@@ -1,5 +1,6 @@
 package com.novatech.paginaweb.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.novatech.paginaweb.dao.ProductoRepository;
+import com.novatech.paginaweb.dao.UsuarioRepository;
 import com.novatech.paginaweb.model.Producto;
 
 @Service
@@ -25,6 +27,15 @@ public class ScheduledJobsService {
     private ProductoRepository productoRepository;
 
     @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private VentaService ventaService;
+
+    @Autowired
+    private MetricsService metricsService;        // ← NUEVO
+
+    @Autowired
     private JobMetricsService jobMetricsService;
 
     @Autowired(required = false)
@@ -34,14 +45,15 @@ public class ScheduledJobsService {
     private String adminEmail;
 
     /**
-     * Revisa productos con stock bajo y registra alertas.
-     * Por defecto: cada hora en el minuto 0.
+     * Revisa productos con stock bajo
      */
     @Scheduled(cron = "${app.jobs.stock-alerta.cron:0 0 * * * *}")
     public void verificarStockBajo() {
         ejecutarJob(JOB_STOCK_ALERTA, () -> {
             List<Producto> productosBajoStock = productoRepository.findProductosConStockBajo();
-            jobMetricsService.updateGauge("app.inventory.low_stock_count", JOB_STOCK_ALERTA, productosBajoStock.size());
+
+            // Actualizar métrica
+            metricsService.updateStockBajo(productosBajoStock.size());
 
             if (productosBajoStock.isEmpty()) {
                 log.info("[{}] No hay productos con stock bajo.", JOB_STOCK_ALERTA);
@@ -64,6 +76,29 @@ public class ScheduledJobsService {
         });
     }
 
+    /**
+     * Actualiza métricas generales cada 5 minutos
+     */
+    @Scheduled(cron = "0 */5 * * * *")
+    public void actualizarMetricasGenerales() {
+        ejecutarJob("metricas-generales", () -> {
+            // Total de clientes
+            long clientes = usuarioRepository.count();
+            metricsService.updateTotalClientes((int) clientes);
+
+            // Total de productos
+            long productos = productoRepository.count();
+            metricsService.updateTotalProductos((int) productos);
+
+            // Ventas del día
+            Double ventas = ventaService.obtenerVentasHoy();
+            metricsService.updateVentasHoy(ventas != null ? ventas : 0.0);
+
+            log.info("Métricas generales actualizadas → Clientes: {}, Productos: {}, Ventas Hoy: {}",
+                    clientes, productos, ventas);
+        });
+    }
+
     private void ejecutarJob(String jobName, Runnable task) {
         long inicio = System.currentTimeMillis();
         boolean exito = true;
@@ -79,7 +114,7 @@ public class ScheduledJobsService {
 
     private void enviarAlertaStock(String detalle) {
         if (mailSender == null) {
-            log.warn("[{}] JavaMailSender no disponible. Alerta solo registrada en logs.", JOB_STOCK_ALERTA);
+            log.warn("[{}] JavaMailSender no disponible.", JOB_STOCK_ALERTA);
             return;
         }
 
@@ -89,9 +124,9 @@ public class ScheduledJobsService {
             mensaje.setSubject("Alerta de stock bajo - NovaTech");
             mensaje.setText(detalle);
             mailSender.send(mensaje);
-            log.info("[{}] Correo de alerta enviado a {}", JOB_STOCK_ALERTA, adminEmail);
+            log.info("[{}] Correo de alerta enviado.", JOB_STOCK_ALERTA);
         } catch (Exception e) {
-            log.error("[{}] No se pudo enviar el correo de alerta: {}", JOB_STOCK_ALERTA, e.getMessage());
+            log.error("[{}] Error enviando correo: {}", JOB_STOCK_ALERTA, e.getMessage());
         }
     }
 }
