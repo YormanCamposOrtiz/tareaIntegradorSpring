@@ -113,7 +113,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
-			<version>3.14.0</version>
+			<version>3.19.0</version>
 		</dependency>
 
 		<!-- Apache POI -->
@@ -139,7 +139,17 @@
 			<artifactId>logback-classic</artifactId>
 			<version>1.5.18</version>
 		</dependency> -->
+        <!--Prometheus y otros pedidos para metricas y demas-->
+        <!-- Monitoring -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
 
     </dependencies>
 

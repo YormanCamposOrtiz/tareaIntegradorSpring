@@ -1,9 +1,16 @@
 
 package com.novatech.paginaweb.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "usuarios")
@@ -20,6 +27,7 @@ public class Usuario {
     private String correo;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String contrasena;
 
     @Column(nullable = false)
@@ -40,11 +48,12 @@ public class Usuario {
 
     // Campos de Seguridad
     @Column(name = "intentos_fallidos", columnDefinition = "INT DEFAULT 0")
+    @JsonIgnore
     private Integer intentosFallidos = 0;
 
     @Column(name = "bloqueado_hasta")
+    @JsonIgnore
     private LocalDateTime bloqueadoHasta;
-
     // Constructor vacío requerido por JPA
     public Usuario() {
     }
