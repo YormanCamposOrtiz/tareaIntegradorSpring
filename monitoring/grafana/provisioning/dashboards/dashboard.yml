@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: Paginaweb
+    orgId: 1
+    folder: Paginaweb
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

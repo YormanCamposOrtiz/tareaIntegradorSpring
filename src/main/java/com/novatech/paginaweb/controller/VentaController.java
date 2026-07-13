@@ -1,9 +1,9 @@
 package com.novatech.paginaweb.controller;
 
-import java.io.ByteArrayInputStream;
-import java.time.LocalDateTime;
-import java.util.List;
-
+import com.novatech.paginaweb.model.Venta;
+import com.novatech.paginaweb.service.ExcelReportService;
+import com.novatech.paginaweb.service.PdfReportService;
+import com.novatech.paginaweb.service.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,20 +11,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.novatech.paginaweb.model.Venta;
-import com.novatech.paginaweb.service.ExcelReportService;
-import com.novatech.paginaweb.service.PdfReportService;
-import com.novatech.paginaweb.service.VentaService;
+import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/ventas")
@@ -138,12 +129,6 @@ public class VentaController {
                     .body(new ErrorResponse("Error inesperado al intentar eliminar la venta."));
         }
     }
-
-    @GetMapping("/ventas-hoy")
-    public ResponseEntity<Double> obtenerVentasHoy() {
-        return ResponseEntity.ok(ventaService.obtenerVentasHoy());
-    }
-
 
     // Clase interna útil para estructurar los mensajes de error en formato JSON para el frontend
     public static class ErrorResponse {

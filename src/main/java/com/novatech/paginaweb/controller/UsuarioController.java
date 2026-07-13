@@ -1,7 +1,6 @@
 package com.novatech.paginaweb.controller;
 
 import com.novatech.paginaweb.model.Usuario;
-import com.novatech.paginaweb.service.UsuarioService;
 import com.novatech.paginaweb.dao.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +17,6 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private UsuarioService usuarioService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -73,11 +69,5 @@ public class UsuarioController {
 
         usuarioRepository.save(usuario);
         return ResponseEntity.ok("Contraseña actualizada con éxito.");
-    }
-
-    @GetMapping("/total-clientes")
-    public ResponseEntity<Long> obtenerTotalClientes() {
-        long total = usuarioService.contarClientes();
-        return ResponseEntity.ok(total);
     }
 }

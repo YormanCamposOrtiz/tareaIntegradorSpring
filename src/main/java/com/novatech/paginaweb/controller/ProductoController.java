@@ -24,12 +24,6 @@ public class ProductoController {
     @Autowired
     private ProductoService productoService;
 
-    @Autowired
-    private PdfReportService pdfReportService;
-
-    @Autowired
-    private ExcelReportService excelReportService;
-
     // ENDPOINT UNIFICADO PARA VER TODOS LOS PRODUCTOS O FILTRAR POR NOMBRE
     @GetMapping
     public List<Producto> listarProductos(@RequestParam(required = false) String nombre) {
@@ -38,11 +32,6 @@ public class ProductoController {
         }
         // Si no viene el parámetro 'nombre', devuelve la lista completa de visibles
         return productoService.listarVisibles();
-    }
-
-    @GetMapping("/stock-bajo")
-    public ResponseEntity<Long> obtenerCantidadStockBajo() {
-        return ResponseEntity.ok(productoService.contarProductosStockBajo());
     }
 
     // Opcional: Obtener un solo producto por ID
@@ -66,7 +55,8 @@ public class ProductoController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    @Autowired
+    private ExcelReportService excelReportService;
 
     @GetMapping("/exportar")
     public ResponseEntity<InputStreamResource> exportarExcel() {
@@ -81,7 +71,7 @@ public class ProductoController {
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(in));
     }
-
+    // ENDPOINT PARA ELIMINAR (Para que funcione el botón de Trash)
     // En lugar de borrar, llamamos al método que cambia la visibilidad
     @PatchMapping("/{id}/visibilidad")
     public ResponseEntity<Void> cambiarVisibilidad(@PathVariable Long id) {
@@ -92,6 +82,8 @@ public class ProductoController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @Autowired
+    private PdfReportService pdfReportService;
 
     @GetMapping("/exportar-pdf")
     public ResponseEntity<org.springframework.core.io.InputStreamResource> exportarPdf() {

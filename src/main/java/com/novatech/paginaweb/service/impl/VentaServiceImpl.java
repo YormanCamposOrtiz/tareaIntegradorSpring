@@ -1,20 +1,18 @@
 package com.novatech.paginaweb.service.impl;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.novatech.paginaweb.dao.ProductoRepository;
 import com.novatech.paginaweb.dao.VentaRepository;
 import com.novatech.paginaweb.model.DetalleVenta;
 import com.novatech.paginaweb.model.Producto;
 import com.novatech.paginaweb.model.Venta;
 import com.novatech.paginaweb.service.VentaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class VentaServiceImpl implements VentaService {
@@ -101,17 +99,6 @@ public class VentaServiceImpl implements VentaService {
 
         // 3. Eliminar la venta (al tener CascadeType.ALL, borrará sus DetalleVenta automáticamente)
         ventaRepository.delete(venta);
-    }
-
-    @Override
-    public Double obtenerVentasHoy() {
-
-        LocalDate hoy = LocalDate.now();
-
-        LocalDateTime inicio = hoy.atStartOfDay();
-        LocalDateTime fin = hoy.plusDays(1).atStartOfDay();
-
-        return ventaRepository.obtenerVentasHoy(inicio, fin);
     }
 
     @Override

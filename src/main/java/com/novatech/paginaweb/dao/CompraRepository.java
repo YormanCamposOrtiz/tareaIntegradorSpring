@@ -1,15 +1,14 @@
 package com.novatech.paginaweb.dao;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
+import com.novatech.paginaweb.model.Compra;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.novatech.paginaweb.model.Compra;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CompraRepository extends JpaRepository<Compra, Long> {
@@ -20,7 +19,6 @@ public interface CompraRepository extends JpaRepository<Compra, Long> {
 
     List<Compra> findByFechaBetween(LocalDateTime inicio, LocalDateTime fin);
 
-    // IMPORTANTE: @Query obligatorio, si no Spring interpreta mal el nombre
     @Query("SELECT DISTINCT c FROM Compra c " +
            "LEFT JOIN FETCH c.usuario " +
            "LEFT JOIN FETCH c.detalles d " +

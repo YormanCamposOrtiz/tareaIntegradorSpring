@@ -127,10 +127,4 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
         return sb.toString();
     }
-
-    @Override
-    public long contarClientes() {
-        return usuarioRepository.countByRol("Usuario");
-    }
-
 }

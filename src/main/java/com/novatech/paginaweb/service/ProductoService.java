@@ -20,6 +20,4 @@ public interface ProductoService {
     void reducirStock(Long id, Integer cantidad);
 
     List<Producto> buscarPorNombre(String nombre);
-
-    long contarProductosStockBajo();
 }
