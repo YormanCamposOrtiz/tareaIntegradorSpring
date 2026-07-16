@@ -11,5 +11,4 @@ public class PaginawebApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PaginawebApplication.class, args);
 	}
-
 }

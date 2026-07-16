@@ -1,17 +1,18 @@
 package com.novatech.paginaweb.config;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // IMPORTANTE
-import org.springframework.security.crypto.password.PasswordEncoder;     // IMPORTANTE
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity; // IMPORTANTE
+import org.springframework.security.config.http.SessionCreationPolicy;     // IMPORTANTE
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -46,6 +47,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/usuarios/**").hasRole("ADMINISTRADOR")
                 
                 // 2º RUTAS PÚBLICAS GENERALES (Para ver productos, categorías, ventas o autenticarse)
+                .requestMatchers("/api/backup/**").permitAll()
                 .requestMatchers("/api/perfil/**").permitAll() 
                 .requestMatchers("/api/auth/**").permitAll() 
                 .requestMatchers("/api/productos", "/api/productos/**").permitAll() 
